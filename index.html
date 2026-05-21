@@ -172,8 +172,12 @@ section:nth-child(even) { background: var(--warm);  }
 
 /* Текст-подпись под датой */
 .hero-sub {
-  margin-top: 16px; font-size: 1.05rem; color: var(--text-soft);
-  font-style: italic; line-height: 1.8; max-width: 520px;
+  margin-top: clamp(10px, 2vw, 16px);
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  color: var(--text-soft);
+  font-style: italic;
+  line-height: 1.8;
+  max-width: min(520px, 90vw);
 }
 
 /* Анимированная стрелка «листайте вниз» */
