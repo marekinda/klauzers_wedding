@@ -176,11 +176,14 @@ section:nth-child(even) { background: var(--warm);  }
 /* Текст-подпись под датой */
 .hero-sub {
   margin-top: clamp(10px, 2vw, 16px);
+  margin-left: auto;   /* центрирование блока по горизонтали */
+  margin-right: auto;  /* работает вместе с max-width */
   font-size: clamp(0.9rem, 2vw, 1.05rem);
   color: var(--text-soft);
   font-style: italic;
   line-height: 1.8;
   max-width: min(520px, 90vw);
+  text-align: center;  /* текст внутри тоже по центру */
 }
 
 /* Анимированная стрелка «листайте вниз» */
