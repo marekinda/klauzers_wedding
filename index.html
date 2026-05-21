@@ -901,25 +901,58 @@ window.addEventListener('resize', () => setTimeout(buildTrail, 200));
 
 /* ╔══════════════════════════════════════════════════════════════════╗
    ║  ОБРАБОТКА ФОРМЫ RSVP                                           ║
-   ║  Показывает сообщение об успехе после заполнения.               ║
-   ║  Реальная отправка данных не реализована — для этого           ║
-   ║  зарегистрируйся на formspree.io и замени action формы.        ║
+   ║                                                                  ║
+   ║  Отправляет данные на Google Apps Script,                        ║
+   ║  который пишет письмо на Gmail и строку в Google Таблицу.       ║
+   ║                                                                  ║
+   ║  ШАГ 1 — Создай скрипт по инструкции в комментарии ниже        ║
+   ║  ШАГ 2 — Вставь URL скрипта в SCRIPT_URL                        ║
    ╚══════════════════════════════════════════════════════════════════╝ */
-function submitRSVP() {
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ← ВСТАВЬ СЮДА ССЫЛКУ ИЗ GOOGLE APPS SCRIPT                    ║
+// ║  Как получить: см. инструкцию в README или в чате               ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzx9kH4Cf3gU4Sdhg-n-Nr3t_oS17i9Rl9A3j6ulBhIGRMlblt8-nwktCAPVyIrxH3A/exec';
+
+async function submitRSVP() {
   const name   = document.getElementById('rsvpName').value.trim();
   const phone  = document.getElementById('rsvpPhone').value.trim();
   const status = document.getElementById('rsvpStatus').value;
 
   // Проверка — все поля заполнены?
   if (!name || !phone || !status) {
-    alert('Пожалуйста, заполните все поля 🙏'); // ← текст ошибки — меняй если нужно
+    alert('Пожалуйста, заполните все поля 🙏');
     return;
   }
 
-  // Скрыть форму, показать спасибо
-  document.getElementById('rsvpForm').style.display = 'none';
-  document.getElementById('guestName').textContent = name.split(' ')[0]; // берём только имя
-  document.getElementById('successMsg').style.display = 'block';
+  // Блокируем кнопку пока идёт отправка
+  const btn = document.querySelector('.submit-btn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Отправляем…';
+  btn.disabled = true;
+
+  try {
+    // Отправляем данные на Google Apps Script
+    // mode: 'no-cors' — обязательно для Apps Script
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, status })
+    });
+
+    // Скрыть форму, показать спасибо
+    document.getElementById('rsvpForm').style.display = 'none';
+    document.getElementById('guestName').textContent = name.split(' ')[0];
+    document.getElementById('successMsg').style.display = 'block';
+
+  } catch (err) {
+    // Если что-то пошло не так — показать ошибку и разблокировать кнопку
+    alert('Не удалось отправить, попробуй ещё раз 🙏');
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
 }
 
 
