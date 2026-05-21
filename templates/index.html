@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  ВКЛАДКА БРАУЗЕРА — заголовок страницы                      ║
+     ║  Меняй имена и дату здесь → это текст во вкладке браузера   ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<title>Дмитрий & Катарина · 28.07.2026</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+
+<style>
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  ЦВЕТА САЙТА — все цвета в одном месте                         ║
+   ║  Если хочешь поменять цветовую схему — меняй только здесь,     ║
+   ║  и изменения автоматически применятся ко всему сайту.          ║
+   ║                                                                 ║
+   ║  Как подобрать цвет: введи в Google «color picker» или         ║
+   ║  зайди на coolors.co — там можно получить HEX-код (#xxxxxx)    ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+:root {
+  --cream:     #faf4ec;  /* основной фон страницы (самый светлый) */
+  --warm:      #f5ead8;  /* фон чётных секций (чуть темнее cream) */
+  --beige:     #e8d5b7;  /* цвет рамок карточек */
+  --sand:      #d4b896;  /* цвет линий-разделителей */
+  --blush:     #e8c4b0;  /* нежно-розовый акцент */
+  --rose:      #c9967f;  /* основной акцентный цвет (курсив в заголовках, кнопки) */
+  --dusty:     #b8876e;  /* тёмный акцент — теги, ссылки */
+  --sage:      #b2bfaa;  /* зелёный оттенок для фоновых пятен */
+  --sage-dark: #8a9e82;  /* тёмно-зелёный — левая граница блока «Вопросы» */
+  --text:      #3e2c20;  /* основной цвет текста (почти чёрный) */
+  --text-mid:  #7a5540;  /* средний текст — подзаголовки, описания */
+  --text-soft: #a07860;  /* мягкий текст — подсказки, мелкий текст */
+  --gold:      #c4a882;  /* цвет пунктирной линии с цветками по центру */
+}
+
+/* ══ Базовый сброс стилей браузера — не трогай ══ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; } /* плавная прокрутка при клике на якорь */
+
+body {
+  background: var(--cream);
+  color: var(--text);
+  font-family: 'EB Garamond', serif; /* основной шрифт всего сайта */
+  overflow-x: hidden;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ПУНКТИРНАЯ ЛИНИЯ С ЦВЕТКАМИ (идёт через весь сайт по центру)
+   Не трогай — это техническая часть анимации
+   ══════════════════════════════════════════════════════════════════ */
+.trail {
+  position: fixed; left: 50%; top: 0;
+  transform: translateX(-50%);
+  width: 1px; height: 100%;
+  z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent 10px,
+    var(--gold) 10px, var(--gold) 14px
+  );
+  opacity: 0.4;
+}
+.trail-flowers {
+  position: fixed; left: 50%; top: 0;
+  transform: translateX(-50%);
+  width: 0; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+.tf {
+  position: absolute; left: 0;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: bloom 0.8s ease forwards;
+}
+@keyframes bloom {
+  from { opacity: 0; transform: translateX(-50%) scale(0) rotate(-45deg); }
+  60%  { opacity: 1; transform: translateX(-50%) scale(1.15) rotate(5deg); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ПОЛОСКА ОБРАТНОГО ОТСЧЁТА (вверху экрана)
+   Цвет фона и текста задаётся здесь
+   ══════════════════════════════════════════════════════════════════ */
+.countdown-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--text); /* тёмный фон полоски */
+  color: var(--cream);     /* белый текст */
+  text-align: center;
+  padding: 9px 20px;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.countdown-bar span {
+  color: var(--blush); /* цвет цифр обратного отсчёта */
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ОБЩИЕ СТИЛИ ВСЕХ СЕКЦИЙ
+   min-height: 100vh = каждая секция занимает весь экран по высоте.
+   Можно уменьшить, например до 80vh, если хочешь короче.
+   ══════════════════════════════════════════════════════════════════ */
+section {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 100px 40px 80px;
+  overflow: hidden;
+}
+/* Чётные секции немного темнее, нечётные светлее — чередование */
+section:nth-child(odd)  { background: var(--cream); }
+section:nth-child(even) { background: var(--warm);  }
+
+/* Анимация появления при прокрутке — не трогай */
+.reveal { opacity: 0; transform: translateY(44px); transition: opacity 1s ease, transform 1s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+
+/* ══ Вспомогательные стили: тег-пилюля, линия с цветком, фоновые пятна ══ */
+.deco-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 24px 0; }
+.deco-row hr { width: 70px; border: none; border-top: 1px solid var(--sand); }
+.tag {
+  display: inline-block;
+  font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--dusty); padding: 5px 16px;
+  border: 1px solid var(--blush); border-radius: 30px; margin-bottom: 18px;
+}
+.petal-bg { position: absolute; border-radius: 60% 40% 55% 45%; opacity: 0.06; pointer-events: none; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   §1  ГЕРОЙ — первый экран с именами
+   ══════════════════════════════════════════════════════════════════ */
+#hero { flex-direction: column; text-align: center; gap: 0; }
+
+/* Текст «Мы приглашаем вас...» над именами */
+.hero-prelude {
+  font-size: 1rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-soft); margin-bottom: 20px;
+}
+
+/* Крупные имена — размер меняется через clamp(мин, гибкий, макс) */
+.names {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.8rem, 10vw, 7.5rem); /* уменьши 7.5rem если имена не помещаются */
+  font-weight: 400; line-height: 1.0; color: var(--text);
+}
+/* Знак & между именами */
+.names .amp {
+  font-style: italic; color: var(--rose); /* цвет амперсанда */
+  font-size: 0.75em; display: inline-block; margin: 0 12px; vertical-align: middle;
+}
+
+/* Дата под именами курсивом */
+.hero-date {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: var(--text-mid); margin-top: 12px;
+}
+
+/* Текст-подпись под датой */
+.hero-sub {
+  margin-top: 16px; font-size: 1.05rem; color: var(--text-soft);
+  font-style: italic; line-height: 1.8; max-width: 520px;
+}
+
+/* Анимированная стрелка «листайте вниз» */
+.scroll-nudge {
+  margin-top: 56px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--text-soft); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+  animation: nudge 2.2s ease-in-out infinite;
+}
+@keyframes nudge { 0%,100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   §2  КАРТОЧКИ «ДАТА И МЕСТО»
+   Сетка 2 колонки. Последняя карточка растянута на 2 колонки (grid-column: span 2)
+   ══════════════════════════════════════════════════════════════════ */
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 28px; margin-top: 36px; text-align: left;
+  max-width: 680px; width: 100%;
+}
+.info-block {
+  background: var(--cream); border: 1px solid var(--beige);
+  border-radius: 16px; padding: 28px 26px;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+/* Анимация карточек с задержкой — не трогай */
+.in .info-block:nth-child(1) { opacity:1; transform:none; transition-delay:0.05s; }
+.in .info-block:nth-child(2) { opacity:1; transform:none; transition-delay:0.2s;  }
+.in .info-block:nth-child(3) { opacity:1; transform:none; transition-delay:0.35s; }
+.in .info-block:nth-child(4) { opacity:1; transform:none; transition-delay:0.5s;  }
+
+/* Иконка, подпись, значение и примечание внутри карточки */
+.info-block .ib-icon  { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+.info-block .ib-label { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-soft); margin-bottom: 6px; }
+.info-block .ib-val   { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.info-block .ib-note  { font-size: 0.9rem; color: var(--text-mid); font-style: italic; line-height: 1.55; }
+
+/* Ссылка «Открыть на карте» */
+.map-link {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+  color: var(--dusty); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+  text-decoration: none; border-bottom: 1px solid var(--blush); padding-bottom: 1px;
+  transition: color 0.3s;
+}
+.map-link:hover { color: var(--rose); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   §3  ТАЙМЛАЙН «ПРОГРАММА»
+   Вертикальная линия слева + точки + блоки времени
+   ══════════════════════════════════════════════════════════════════ */
+.timeline {
+  position: relative; max-width: 480px; width: 100%;
+  margin-top: 36px; padding-left: 32px;
+}
+/* Пунктирная вертикальная линия слева */
+.timeline::before {
+  content: ''; position: absolute; left: 7px; top: 6px; bottom: 6px;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom, var(--sand) 0, var(--sand) 6px, transparent 6px, transparent 12px
+  );
+}
+.tl-item { position: relative; margin-bottom: 36px; opacity: 0; transform: translateX(-20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+/* Анимация пунктов с задержкой — не трогай */
+.in .tl-item:nth-child(1) { opacity:1; transform:none; transition-delay:0.1s; }
+.in .tl-item:nth-child(2) { opacity:1; transform:none; transition-delay:0.3s; }
+.in .tl-item:nth-child(3) { opacity:1; transform:none; transition-delay:0.5s; }
+.in .tl-item:nth-child(4) { opacity:1; transform:none; transition-delay:0.7s; }
+
+.tl-dot   { position: absolute; left: -29px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--blush); border: 2px solid var(--rose); }
+.tl-time  { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.05rem; color: var(--dusty); margin-bottom: 4px; }
+.tl-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.tl-desc  { font-size: 0.95rem; color: var(--text-mid); line-height: 1.65; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   §4  КАРТОЧКИ «ПОЖЕЛАНИЯ ПО ПОДАРКАМ»
+   2 карточки рядом, каждая с иконкой, заголовком и текстом
+   ══════════════════════════════════════════════════════════════════ */
+.wish-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 36px; max-width: 680px; width: 100%; }
+.wish-card { border-radius: 16px; padding: 30px 24px; opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.in .wish-card:nth-child(1) { opacity:1; transform:none; transition-delay:0.1s; }
+.in .wish-card:nth-child(2) { opacity:1; transform:none; transition-delay:0.28s; }
+/* Цвета фона первой и второй карточки — меняй градиенты здесь */
+.wish-card:nth-child(1) { background: linear-gradient(135deg, #f0e4d4, #e8d5b7); }
+.wish-card:nth-child(2) { background: linear-gradient(135deg, #dfe8db, #ccd8c7); }
+.wish-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+.wish-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.wish-card p  { font-size: 0.95rem; color: var(--text-mid); line-height: 1.7; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   §5  БЛОКИ «ВАЖНЫЕ ДЕТАЛИ» (дети и контакты)
+   notice-box — прямоугольник с цветной левой границей
+   ══════════════════════════════════════════════════════════════════ */
+.notice-box {
+  max-width: 620px; width: 100%;
+  background: var(--warm); border: 1px solid var(--beige);
+  border-left: 4px solid var(--rose); /* цвет левой границы — меняй здесь */
+  border-radius: 0 16px 16px 0;
+  padding: 28px 30px; margin: 28px 0; text-align: left;
+}
+.notice-box .nb-head { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.notice-box p { font-size: 0.97rem; color: var(--text-mid); line-height: 1.75; }
+
+/* Ряд карточек с контактами */
+.contact-row { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; margin-top: 28px; }
+.contact-card { background: var(--cream); border: 1px solid var(--beige); border-radius: 14px; padding: 20px 28px; text-align: center; min-width: 200px; }
+.contact-card .cc-name { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+.contact-card a { color: var(--dusty); text-decoration: none; font-size: 1rem; transition: color 0.3s; }
+.contact-card a:hover { color: var(--rose); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   §6  ФОРМА RSVP
+   Белый блок с полями ввода, кнопкой и сообщением об успехе
+   ══════════════════════════════════════════════════════════════════ */
+.rsvp-wrap { max-width: 560px; width: 100%; background: var(--cream); border: 1px solid var(--beige); border-radius: 20px; padding: 42px 38px; margin-top: 36px; text-align: left; }
+/* Тёмный бейдж с дедлайном вверху формы */
+.deadline-note { display: inline-block; background: var(--text); color: var(--cream); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 16px; border-radius: 30px; margin-bottom: 24px; }
+.fg { margin-bottom: 18px; }
+.fg label { display: block; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-soft); margin-bottom: 7px; }
+.fg input, .fg select { width: 100%; background: var(--warm); border: 1px solid var(--beige); border-radius: 10px; padding: 12px 16px; font-family: 'EB Garamond', serif; font-size: 1rem; color: var(--text); outline: none; transition: border-color 0.3s; appearance: none; }
+.fg input:focus, .fg select:focus { border-color: var(--rose); } /* цвет рамки в фокусе */
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* Кнопка отправки */
+.submit-btn { width: 100%; padding: 15px; background: var(--text); color: var(--cream); font-family: 'EB Garamond', serif; font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; border: none; border-radius: 50px; cursor: pointer; transition: background 0.3s, transform 0.2s; margin-top: 8px; }
+.submit-btn:hover { background: var(--rose); transform: translateY(-2px); }
+/* Сообщение после отправки — скрыто до клика */
+.success-msg { display: none; text-align: center; padding: 24px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.3rem; color: var(--dusty); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ОБЩИЕ СТИЛИ ЗАГОЛОВКОВ И ТЕКСТА
+   ══════════════════════════════════════════════════════════════════ */
+.section-inner { max-width: 760px; width: 100%; text-align: center; }
+h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 400; line-height: 1.2; color: var(--text); margin-bottom: 6px; }
+h2 em { font-style: italic; color: var(--rose); } /* курсивное слово в заголовке */
+.lead { font-size: 1.05rem; color: var(--text-mid); line-height: 1.85; max-width: 540px; margin: 0 auto; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ФУТЕР — самый низ страницы
+   ══════════════════════════════════════════════════════════════════ */
+footer { position: relative; z-index: 1; background: var(--text); color: var(--sand); text-align: center; padding: 48px 24px; }
+footer .f-names { font-family: 'Playfair Display', serif; font-style: italic; font-size: 2rem; color: var(--blush); margin-bottom: 8px; }
+footer p { font-size: 0.85rem; letter-spacing: 0.08em; opacity: 0.6; margin-top: 6px; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   МОБИЛЬНЫЕ УСТРОЙСТВА — при ширине меньше 600px
+   Переключаем двухколоночные сетки в одну колонку
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+/* ══════════════════════════════════════════════════════
+   ПЛАНШЕТ — от 601px до 900px (iPad, большие телефоны)
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Пунктирная линия по центру прячется — на планшете
+     она мешает и перекрывает текст */
+  .trail, .trail-flowers { display: none; }
+
+  /* Карточки места: 2 колонки → 1 колонка */
+  .info-grid { grid-template-columns: 1fr; max-width: 480px; }
+
+  /* Карточка места больше не нужно растягивать на 2 колонки */
+  .info-block[style*="span 2"] { grid-column: span 1 !important; }
+
+  /* Таймлайн чуть уже */
+  .timeline { max-width: 100%; }
+}
+
+/* ══════════════════════════════════════════════════════
+   ТЕЛЕФОН — до 600px (основной мобильный размер)
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* Все двухколоночные сетки → одна колонка */
+  .info-grid,
+  .wish-cards,
+  .form-row-2 { grid-template-columns: 1fr; }
+
+  /* Имена: уменьшаем чтобы влезли на экран */
+  .names { font-size: clamp(2.4rem, 11vw, 4rem); }
+
+  /* Секции: меньше отступы по бокам */
+  section { padding: 80px 20px 50px; }
+
+  /* Форма: меньше внутренние отступы */
+  .rsvp-wrap { padding: 24px 18px; }
+
+  /* Блок контактов: вертикально */
+  .contact-row { flex-direction: column; align-items: center; }
+  .contact-card { width: 100%; max-width: 300px; }
+
+  /* Блоки «важное»: убираем левую границу на весь экран */
+  .notice-box { border-radius: 12px; margin: 16px 0; }
+
+  /* Карточка места: убираем растяжку на 2 колонки */
+  .info-block[style*="span 2"] { grid-column: span 1 !important; }
+
+  /* Полоска обратного отсчёта: мельче текст */
+  .countdown-bar { font-size: 0.65rem; padding: 8px 12px; }
+
+  /* Скрыть пунктирную линию — на телефоне не нужна */
+  .trail, .trail-flowers { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════
+   МАЛЕНЬКИЙ ТЕЛЕФОН — до 380px (iPhone SE, старые Android)
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  /* Имена совсем маленькие */
+  .names { font-size: clamp(2rem, 10vw, 3rem); }
+
+  /* Убрать амперсанд на отдельную строку не нужно —
+     clamp сам подстроит размер */
+
+  /* Ещё меньше отступы */
+  section { padding: 70px 16px 40px; }
+  .rsvp-wrap { padding: 20px 14px; }
+
+  /* Теги-пилюли: мельче */
+  .tag { font-size: 0.6rem; padding: 4px 12px; }
+}
+}
+</style>
+</head>
+<body>
+
+<!-- Пунктирная линия по центру экрана (техника) — не трогай -->
+<div class="trail"></div>
+<div class="trail-flowers" id="trailFlowers"></div>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  ПОЛОСКА ОБРАТНОГО ОТСЧЁТА (вверху экрана)                  ║
+     ║  Текст «До свадьбы осталось:» можно поменять                ║
+     ║  Цифры подставляются автоматически из JavaScript            ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="countdown-bar">
+  До свадьбы осталось:&nbsp;<span id="cdText">считаем…</span>
+</div>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  §1  ПЕРВЫЙ ЭКРАН — ИМЕНА И ПРИГЛАШЕНИЕ                     ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • hero-prelude  → вступительная фраза над именами          ║
+     ║  • .names        → имена жениха и невесты                   ║
+     ║  • .hero-date    → дата свадьбы прописью                    ║
+     ║  • .hero-sub     → короткий текст-приглашение               ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section id="hero">
+  <!-- Декоративные размытые пятна на фоне — не трогай -->
+  <div class="petal-bg" style="width:560px;height:560px;background:var(--blush);top:-150px;right:-160px;transform:rotate(25deg)"></div>
+  <div class="petal-bg" style="width:380px;height:380px;background:var(--sage);bottom:-80px;left:-100px;transform:rotate(-15deg)"></div>
+
+  <div class="reveal" style="text-align:center; position:relative; z-index:1;">
+
+    <!-- Фраза над именами → МЕНЯЙ ТЕКСТ ЗДЕСЬ -->
+    <p class="hero-prelude">Мы приглашаем вас разделить с нами</p>
+
+    <!-- Имена крупно → МЕНЯЙ ИМЕНА ЗДЕСЬ -->
+    <div class="names">
+      Дмитрий<span class="amp">&</span>Катарина
+    </div>
+
+    <!-- Дата под именами → МЕНЯЙ ДАТУ ЗДЕСЬ -->
+    <p class="hero-date">28 июля 2026 года</p>
+
+    <!-- Декоративная линия с цветком — не трогай -->
+    <div class="deco-row">
+      <hr>
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <ellipse cx="11" cy="5"  rx="2.6" ry="4.5" fill="#c9967f" transform="rotate(0 11 11)"/>
+        <ellipse cx="11" cy="5"  rx="2.6" ry="4.5" fill="#c9967f" transform="rotate(60 11 11)"/>
+        <ellipse cx="11" cy="5"  rx="2.6" ry="4.5" fill="#c9967f" transform="rotate(120 11 11)"/>
+        <ellipse cx="11" cy="5"  rx="2.6" ry="4.5" fill="#c9967f" transform="rotate(180 11 11)"/>
+        <ellipse cx="11" cy="5"  rx="2.6" ry="4.5" fill="#c9967f" transform="rotate(240 11 11)"/>
+        <ellipse cx="11" cy="5"  rx="2.6" ry="4.5" fill="#c9967f" transform="rotate(300 11 11)"/>
+        <circle cx="11" cy="11" r="3" fill="#faf4ec"/>
+      </svg>
+      <hr>
+    </div>
+
+    <!-- Короткий текст-приглашение под датой → МЕНЯЙ ТЕКСТ ЗДЕСЬ -->
+    <p class="hero-sub">
+      В этот день мы произнесём слова, которые изменят всё.
+      Мы были бы счастливы встретить его вместе с вами.
+    </p>
+
+    <!-- Анимированная стрелка «листайте» — не трогай -->
+    <div class="scroll-nudge">
+      <span>Листайте ниже</span>
+      <svg width="18" height="26" viewBox="0 0 18 26">
+        <rect x="5.5" y="0" width="7" height="13" rx="3.5" fill="none" stroke="#a07860" stroke-width="1.4"/>
+        <circle cx="9" cy="4.5" r="1.8" fill="#a07860">
+          <animateTransform attributeName="transform" type="translate" values="0 0;0 4;0 0" dur="1.8s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M4 18 L9 24 L14 18" fill="none" stroke="#a07860" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  §2  ДАТА, ВРЕМЯ И МЕСТО                                     ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • ib-val в карточке «Дата» → дату                         ║
+     ║  • ib-val в карточке «Время» → время начала                ║
+     ║  • ib-val в карточке «Место» → название и адрес            ║
+     ║  • href у .map-link → ссылку на карту                       ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section id="details">
+  <div class="petal-bg" style="width:420px;height:420px;background:var(--sand);top:30px;left:-130px;transform:rotate(10deg)"></div>
+
+  <div class="section-inner reveal">
+    <!-- Маленький тег-пилюля → МЕНЯЙ ТЕКСТ ЕСЛИ НУЖНО -->
+    <span class="tag">Дата и место</span>
+
+    <!-- Заголовок секции → МЕНЯЙ ТЕКСТ ЕСЛИ НУЖНО -->
+    <!-- Слово внутри <em>...</em> будет курсивом и цветным -->
+    <h2>Когда и <em>где</em></h2>
+
+    <!-- Декоративная линия с цветком — не трогай -->
+    <div class="deco-row">
+      <hr>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#b2bfaa" transform="rotate(0 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#b2bfaa" transform="rotate(72 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#b2bfaa" transform="rotate(144 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#b2bfaa" transform="rotate(216 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#b2bfaa" transform="rotate(288 8 8)"/>
+        <circle cx="8" cy="8" r="2.2" fill="#faf4ec"/>
+      </svg>
+      <hr>
+    </div>
+
+    <!-- Карточки с датой, временем и местом -->
+    <div class="info-grid">
+
+      <!-- КАРТОЧКА 1: ДАТА → меняй ib-val и ib-note -->
+      <div class="info-block">
+        <span class="ib-icon">📅</span>                           <!-- иконка — меняй эмодзи -->
+        <div class="ib-label">Дата</div>                         <!-- подпись над значением -->
+        <div class="ib-val">28 июля 2026</div>                   <!-- ← МЕНЯЙ ДАТУ ЗДЕСЬ -->
+        <div class="ib-note">Вторник — тихий будний день, только для самых близких</div>  <!-- ← подпись под датой -->
+      </div>
+
+      <!-- КАРТОЧКА 2: ВРЕМЯ → меняй ib-val и ib-note -->
+      <div class="info-block">
+        <span class="ib-icon">🕔</span>
+        <div class="ib-label">Начало церемонии</div>
+        <div class="ib-val">17:15</div>                          <!-- ← МЕНЯЙ ВРЕМЯ ЗДЕСЬ -->
+        <div class="ib-note">Просим прибыть немного заранее — регистрация начинается строго по расписанию</div>
+      </div>
+
+      <!-- КАРТОЧКА 3: МЕСТО → занимает обе колонки; меняй ib-val, ib-note и href ссылки -->
+      <div class="info-block" style="grid-column: span 2;">
+        <span class="ib-icon">🏛</span>
+        <div class="ib-label">Место проведения</div>
+        <div class="ib-val">Таганский дворец бракосочетания</div>  <!-- ← НАЗВАНИЕ МЕСТА -->
+        <div class="ib-note">г. Москва, ул. Таганская, д. 44</div> <!-- ← АДРЕС -->
+        <!-- Ссылка на карту → МЕНЯЙ href ЗДЕСЬ -->
+        <a class="map-link" href="https://yandex.com/maps/-/CPSuNGN7" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5c0 2.795 3.5 6.5 3.5 6.5s3.5-3.705 3.5-6.5C9.5 2.567 7.933 1 6 1z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            <circle cx="6" cy="4.5" r="1.2" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          Открыть на карте   <!-- ← текст ссылки -->
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  §3  ПРОГРАММА ДНЯ (таймлайн)                               ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • tl-time  → время каждого события                         ║
+     ║  • tl-title → название события                              ║
+     ║  • tl-desc  → описание события                              ║
+     ║  Чтобы добавить пункт — скопируй весь блок <div class="tl-item">  ║
+     ║  Чтобы удалить — просто удали соответствующий tl-item      ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section id="program">
+  <div class="petal-bg" style="width:300px;height:300px;background:var(--blush);bottom:-60px;right:-60px;transform:rotate(40deg)"></div>
+
+  <div class="section-inner reveal">
+    <span class="tag">Программа</span>
+    <h2>Наш <em>день</em></h2>
+    <div class="deco-row">
+      <hr>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#c9967f" transform="rotate(0 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#c9967f" transform="rotate(72 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#c9967f" transform="rotate(144 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#c9967f" transform="rotate(216 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#c9967f" transform="rotate(288 8 8)"/>
+        <circle cx="8" cy="8" r="2.2" fill="#f5ead8"/>
+      </svg>
+      <hr>
+    </div>
+    <!-- Подпись под заголовком → МЕНЯЙ ТЕКСТ ЕСЛИ НУЖНО -->
+    <p class="lead">Небольшой, но наполненный день — только самое важное.</p>
+
+    <div class="timeline" style="margin: 36px auto 0;">
+
+      <!-- ПУНКТ ТАЙМЛАЙНА 1 → МЕНЯЙ tl-time, tl-title, tl-desc -->
+      <div class="tl-item">
+        <div class="tl-dot"></div>  <!-- точка на линии — не трогай -->
+        <div class="tl-time">17:15</div>                                  <!-- ← ВРЕМЯ -->
+        <div class="tl-title">Регистрация брака</div>                    <!-- ← НАЗВАНИЕ -->
+        <div class="tl-desc">Торжественная церемония в Таганском дворце бракосочетания — момент, ради которого мы собрались.</div>  <!-- ← ОПИСАНИЕ -->
+      </div>
+
+      <!-- ПУНКТ ТАЙМЛАЙНА 2 → МЕНЯЙ tl-time, tl-title, tl-desc -->
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-time">После церемонии</div>                       <!-- ← ВРЕМЯ (может быть текстом) -->
+        <div class="tl-title">Совместные фотографии</div>
+        <div class="tl-desc">Немного времени на радость и снимки, которые останутся на долгие годы.</div>
+      </div>
+
+      <!-- ПУНКТ ТАЙМЛАЙНА 3 → МЕНЯЙ tl-time, tl-title, tl-desc -->
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-time">Вечером</div>
+        <div class="tl-title">Праздничный ужин</div>
+        <div class="tl-desc">Тёплый ресторанный вечер в узком кругу самых близких — с едой, вином и хорошими разговорами.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  §4  ПОЖЕЛАНИЯ ПО ПОДАРКАМ                                   ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • wish-icon → эмодзи иконка карточки                       ║
+     ║  • h3         → заголовок карточки                           ║
+     ║  • p          → текст карточки                               ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section id="gifts">
+  <div class="petal-bg" style="width:480px;height:480px;background:var(--sage);top:-120px;left:-150px;transform:rotate(-20deg)"></div>
+
+  <div class="section-inner reveal">
+    <span class="tag">Пожелания</span>
+    <h2>Вместо <em>подарков</em></h2>
+    <div class="deco-row">
+      <hr>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#b2bfaa" transform="rotate(0 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#b2bfaa" transform="rotate(60 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#b2bfaa" transform="rotate(120 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#b2bfaa" transform="rotate(180 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#b2bfaa" transform="rotate(240 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#b2bfaa" transform="rotate(300 9 9)"/>
+        <circle cx="9" cy="9" r="2.5" fill="#faf4ec"/>
+      </svg>
+      <hr>
+    </div>
+    <!-- Текст над карточками → МЕНЯЙ ЕСЛИ НУЖНО -->
+    <p class="lead">Нам важно ваше присутствие, а не подношения. Но если хочется порадовать нас чем-то особенным — вот несколько идей.</p>
+
+    <div class="wish-cards">
+
+      <!-- КАРТОЧКА ПОЖЕЛАНИЯ 1 → МЕНЯЙ иконку, заголовок и текст -->
+      <div class="wish-card">
+        <span class="wish-icon">✦</span>          <!-- ← эмодзи или символ -->
+        <h3>Денежный подарок</h3>                 <!-- ← заголовок -->
+        <p>Мы с удовольствием примем конверт — эти средства помогут нам воплотить совместные мечты и планы, которых впереди немало.</p>  <!-- ← текст -->
+      </div>
+
+      <!-- КАРТОЧКА ПОЖЕЛАНИЯ 2 → МЕНЯЙ иконку, заголовок и текст -->
+      <div class="wish-card">
+        <span class="wish-icon">🌸</span>
+        <h3>Подписка на цветы</h3>
+        <p>Вместо букета в день свадьбы — подписка на доставку цветов. Сразу после торжества мы уезжаем в горы, и живые цветы, к сожалению, останутся без нас. Зато радоваться им мы будем потом — долго и с благодарностью.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  §5  ВАЖНЫЕ ДЕТАЛИ — ДЕТИ И КОНТАКТЫ                        ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • nb-head  → заголовок блока (эмодзи + текст)              ║
+     ║  • p внутри notice-box → основной текст блока               ║
+     ║  • cc-name  → имя в карточке контакта                       ║
+     ║  • href="tel:..."  → номер телефона (без пробелов и тире)   ║
+     ║  • текст ссылки → номер телефона в отображаемом виде        ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section id="notes">
+  <div class="petal-bg" style="width:340px;height:340px;background:var(--blush);bottom:-80px;right:-70px;transform:rotate(30deg)"></div>
+
+  <div class="section-inner reveal">
+    <span class="tag">Важное</span>
+    <h2>Несколько <em>деталей</em></h2>
+    <div class="deco-row">
+      <hr>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#d4b896" transform="rotate(0 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#d4b896" transform="rotate(72 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#d4b896" transform="rotate(144 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#d4b896" transform="rotate(216 8 8)"/>
+        <ellipse cx="8" cy="3.5" rx="1.9" ry="3.2" fill="#d4b896" transform="rotate(288 8 8)"/>
+        <circle cx="8" cy="8" r="2.2" fill="#f5ead8"/>
+      </svg>
+      <hr>
+    </div>
+
+    <!-- БЛОК «ДЕТИ» → МЕНЯЙ nb-head и текст внутри <p> -->
+    <!-- border-left-color задаётся в style="..." или через --rose в CSS -->
+    <div class="notice-box">
+      <div class="nb-head">🧸 Праздник для взрослых</div>   <!-- ← заголовок блока -->
+      <p>Мы очень любим детей — и именно поэтому просим оставить их дома с заботливыми бабушками или няней. Церемония и ужин рассчитаны на взрослую компанию: долгое ожидание, поздний вечер и атмосфера не самые подходящие для малышей. Пусть этот день будет лёгким и для них, и для вас. Спасибо за понимание 🤍</p>  <!-- ← текст -->
+    </div>
+
+    <!-- БЛОК «ВОПРОСЫ» → МЕНЯЙ nb-head и текст внутри <p> -->
+    <!-- style="border-left-color: var(--sage-dark);" — зелёная граница вместо розовой -->
+    <div class="notice-box" style="border-left-color: var(--sage-dark);">
+      <div class="nb-head">📞 Остались вопросы?</div>
+      <p>У нас нет свадебного организатора, поэтому мы сами отвечаем на все вопросы. Просим задать их <strong>заранее</strong> — в день свадьбы мы можем быть недоступны по телефону. Пишите в мессенджер или звоните до 27 июля включительно:</p>
+    </div>
+
+    <!-- КОНТАКТНЫЕ КАРТОЧКИ — добавляй/удаляй .contact-card блоки -->
+    <div class="contact-row">
+
+      <!-- КОНТАКТ 1 → МЕНЯЙ имя, href и отображаемый номер -->
+      <div class="contact-card">
+        <div class="cc-name">Дмитрий</div>                          <!-- ← имя -->
+        <a href="tel:+79268868079">+7 926 886-80-79</a>             <!-- ← tel: номер без разделителей, текст — как хочешь -->
+      </div>
+
+      <!-- КОНТАКТ 2 → МЕНЯЙ имя, href и отображаемый номер -->
+      <div class="contact-card">
+        <div class="cc-name">Катарина</div>
+        <a href="tel:+79999251613">+7 999 925-16-13</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  §6  ФОРМА ПОДТВЕРЖДЕНИЯ ПРИСУТСТВИЯ (RSVP)                 ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • deadline-note → дату дедлайна в бейдже                   ║
+     ║  • <strong> в тексте lead → дату дедлайна в тексте          ║
+     ║  • label → подписи полей                                     ║
+     ║  • placeholder → текст-подсказка внутри поля                 ║
+     ║  • <option> → варианты ответов в выпадающем списке          ║
+     ║  • .submit-btn текст → надпись на кнопке                    ║
+     ║  • .success-msg текст → сообщение после отправки            ║
+     ║                                                              ║
+     ║  ⚠  Форма визуально работает (показывает успех),            ║
+     ║     но реально НЕ отправляет данные на почту.               ║
+     ║     Для реальной отправки нужен сервис Formspree.com        ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section id="rsvp">
+  <div class="petal-bg" style="width:400px;height:400px;background:var(--sand);top:-100px;left:-100px;transform:rotate(15deg)"></div>
+
+  <div class="section-inner reveal">
+    <span class="tag">Подтверждение</span>
+    <h2>Вы <em>придёте?</em></h2>
+    <div class="deco-row">
+      <hr>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#c9967f" transform="rotate(0 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#c9967f" transform="rotate(60 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#c9967f" transform="rotate(120 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#c9967f" transform="rotate(180 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#c9967f" transform="rotate(240 9 9)"/>
+        <ellipse cx="9" cy="4" rx="2.2" ry="3.8" fill="#c9967f" transform="rotate(300 9 9)"/>
+        <circle cx="9" cy="9" r="2.5" fill="#faf4ec"/>
+      </svg>
+      <hr>
+    </div>
+    <!-- Текст над формой → МЕНЯЙ ДАТУ ДЕДЛАЙНА в <strong> -->
+    <p class="lead">Пожалуйста, сообщите о своём решении до <strong>30 июня 2026</strong> — это поможет нам подготовиться.</p>
+
+    <div class="rsvp-wrap">
+      <!-- Бейдж с дедлайном → МЕНЯЙ ДАТУ ЗДЕСЬ -->
+      <div class="deadline-note">⏳ Ответить до 30 июня 2026</div>
+
+      <!-- Поля формы — скрываются после успешной отправки -->
+      <div id="rsvpForm">
+
+        <div class="form-row-2">
+          <!-- ПОЛЕ «ИМЯ» → меняй label и placeholder -->
+          <div class="fg">
+            <label>Ваше имя</label>                          <!-- ← подпись поля -->
+            <input type="text" id="rsvpName" placeholder="Имя и фамилия">  <!-- ← подсказка в поле -->
+          </div>
+          <!-- ПОЛЕ «ТЕЛЕФОН» → меняй label и placeholder -->
+          <div class="fg">
+            <label>Телефон</label>
+            <input type="tel" id="rsvpPhone" placeholder="+7 000 000-00-00">
+          </div>
+        </div>
+
+        <!-- ВЫПАДАЮЩИЙ СПИСОК → меняй варианты <option> -->
+        <div class="fg">
+          <label>Вы придёте?</label>
+          <select id="rsvpStatus">
+            <option value="">— выберите —</option>                        <!-- первый пункт — пустой -->
+            <option value="yes">Да, с радостью буду!</option>            <!-- ← вариант 1 -->
+            <option value="no">К сожалению, не смогу</option>            <!-- ← вариант 2 -->
+            <option value="maybe">Пока не знаю, напишу позже</option>   <!-- ← вариант 3 -->
+          </select>
+        </div>
+
+        <!-- КНОПКА ОТПРАВКИ → меняй текст -->
+        <button class="submit-btn" onclick="submitRSVP()">Отправить ответ</button>
+
+      </div>
+
+      <!-- СООБЩЕНИЕ ПОСЛЕ ОТПРАВКИ → меняй текст; <span id="guestName"> — имя гостя вставится автоматически -->
+      <div class="success-msg" id="successMsg">
+        Спасибо, <span id="guestName"></span>! 🌸<br>
+        Мы получили ваш ответ и очень ждём встречи.   <!-- ← МЕНЯЙ ТЕКСТ ЕСЛИ НУЖНО -->
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  ФУТЕР — самый низ страницы                                  ║
+     ║                                                              ║
+     ║  Что меняешь:                                               ║
+     ║  • f-names → имена (можно дублировать из hero)              ║
+     ║  • дату и город во втором <p>                               ║
+     ║  • цитату в третьем <p>                                      ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<footer>
+  <!-- Имена → МЕНЯЙ ЗДЕСЬ -->
+  <div class="f-names">Дмитрий & Катарина</div>
+
+  <!-- Дата и город → МЕНЯЙ ЗДЕСЬ -->
+  <p>28 · 07 · 2026 · Москва</p>
+
+  <!-- Цитата → МЕНЯЙ ИЛИ УДАЛЯЙ ЭТУ СТРОКУ -->
+  <p style="margin-top:16px; font-style:italic; opacity:0.4; font-family:'EB Garamond',serif; font-size:0.95rem;">
+    «Нет ничего прекраснее, чем начать всё сначала — вместе»
+  </p>
+</footer>
+
+
+<script>
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  ОБРАТНЫЙ ОТСЧЁТ                                                ║
+   ║  Меняй дату и время свадьбы в строке ниже.                     ║
+   ║  Формат: 'ГГГГ-ММ-ДДTчч:мм:сс'                                ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+function updateCountdown() {
+  const wedding = new Date('2026-07-28T17:15:00'); // ← МЕНЯЙ ДАТУ И ВРЕМЯ ЗДЕСЬ
+  const now = new Date();
+  const diff = wedding - now;
+  if (diff <= 0) {
+    document.getElementById('cdText').textContent = 'сегодня! 🎉';
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  document.getElementById('cdText').textContent = `${d} дн. ${h} ч. ${m} мин.`;
+}
+updateCountdown();
+setInterval(updateCountdown, 60000); // обновлять каждую минуту
+
+
+/* ══════════════════════════════════════════════════════════════════
+   АНИМАЦИЯ ПОЯВЛЕНИЯ СЕКЦИЙ ПРИ ПРОКРУТКЕ — не трогай
+   ══════════════════════════════════════════════════════════════════ */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+document.querySelector('#hero .reveal').classList.add('in'); // герой виден сразу
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ГЕНЕРАЦИЯ ЦВЕТКОВ НА ЛИНИИ — не трогай
+   ══════════════════════════════════════════════════════════════════ */
+function flowerSVG(c1, c2, sz) {
+  const c = sz / 2;
+  const petals = [0, 60, 120, 180, 240, 300].map(a =>
+    `<ellipse cx="${c}" cy="${c * 0.36}" rx="${sz * 0.12}" ry="${sz * 0.35}" fill="${c1}" transform="rotate(${a} ${c} ${c})"/>`
+  ).join('');
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}' viewBox='0 0 ${sz} ${sz}'>${petals}<circle cx='${c}' cy='${c}' r='${sz * 0.14}' fill='${c2}'/></svg>`;
+}
+const palette = [
+  ['#c9967f', '#faf4ec'], ['#b2bfaa', '#f5ead8'],
+  ['#e8c4b0', '#faf4ec'], ['#d4b896', '#f5ead8'],
+  ['#b8a898', '#faf4ec'],
+];
+function buildTrail() {
+  const container = document.getElementById('trailFlowers');
+  const total = document.body.scrollHeight;
+  const step = 88; // расстояние между цветками в пикселях
+  container.innerHTML = '';
+  for (let i = 0; i < Math.floor(total / step); i++) {
+    const [c1, c2] = palette[i % palette.length];
+    const sz = [18, 22, 15][i % 3];
+    const div = document.createElement('div');
+    div.className = 'tf';
+    div.style.top = (i * step + 16) + 'px';
+    div.style.animationDelay = (i * 0.035) + 's';
+    div.innerHTML = flowerSVG(c1, c2, sz);
+    container.appendChild(div);
+  }
+}
+window.addEventListener('load', buildTrail);
+window.addEventListener('resize', () => setTimeout(buildTrail, 200));
+
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  ОБРАБОТКА ФОРМЫ RSVP                                           ║
+   ║  Показывает сообщение об успехе после заполнения.               ║
+   ║  Реальная отправка данных не реализована — для этого           ║
+   ║  зарегистрируйся на formspree.io и замени action формы.        ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+function submitRSVP() {
+  const name   = document.getElementById('rsvpName').value.trim();
+  const phone  = document.getElementById('rsvpPhone').value.trim();
+  const status = document.getElementById('rsvpStatus').value;
+
+  // Проверка — все поля заполнены?
+  if (!name || !phone || !status) {
+    alert('Пожалуйста, заполните все поля 🙏'); // ← текст ошибки — меняй если нужно
+    return;
+  }
+
+  // Скрыть форму, показать спасибо
+  document.getElementById('rsvpForm').style.display = 'none';
+  document.getElementById('guestName').textContent = name.split(' ')[0]; // берём только имя
+  document.getElementById('successMsg').style.display = 'block';
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ПАРАЛЛАКС ФОНОВЫХ ПЯТЕН ПРИ ПРОКРУТКЕ — не трогай
+   ══════════════════════════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  document.querySelectorAll('.petal-bg').forEach((el, i) => {
+    const s = i % 2 === 0 ? 0.07 : 0.04;
+    el.style.transform = (el.style.transform || '').replace(/\s*translateY\([^)]*\)/g, '')
+      + ` translateY(${y * s}px)`;
+  });
+});
+</script>
+</body>
+</html>
