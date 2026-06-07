@@ -812,6 +812,17 @@ footer p { font-size: 0.85rem; letter-spacing: 0.08em; opacity: 0.6; margin-top:
           </select>
         </div>
 
+        <!-- ВЫПАДАЮЩИЙ СПИСОК → меняй варианты <option> -->
+        <div class="fg">
+          <label>Количество гостей</label>
+          <select id="rsvpStatus">
+            <option value="">— выберите —</option>                        <!-- первый пункт — пустой -->
+            <option value="one">Один</option>            <!-- ← вариант 1 -->
+            <option value="two">Два</option>            <!-- ← вариант 2 -->
+          </select>
+        </div>
+
+
         <!-- КНОПКА ОТПРАВКИ → меняй текст -->
         <button class="submit-btn" onclick="submitRSVP()">Отправить ответ</button>
 
