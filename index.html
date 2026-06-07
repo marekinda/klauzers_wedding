@@ -822,7 +822,7 @@ footer p { font-size: 0.85rem; letter-spacing: 0.08em; opacity: 0.6; margin-top:
         <!-- ВЫПАДАЮЩИЙ СПИСОК → меняй варианты <option> -->
         <div class="fg">
           <label>Количество гостей</label>
-          <select id="rsvpStatus">
+          <select id="guestCount">
             <option value="">— выберите —</option>                        <!-- первый пункт — пустой -->
             <option value="one">Один</option>            <!-- ← вариант 1 -->
             <option value="two">Два</option>            <!-- ← вариант 2 -->
@@ -950,12 +950,13 @@ window.addEventListener('resize', () => setTimeout(buildTrail, 200));
 // ║  ← ВСТАВЬ СЮДА ССЫЛКУ ИЗ GOOGLE APPS SCRIPT                    ║
 // ║  Как получить: см. инструкцию в README или в чате               ║
 // ╚══════════════════════════════════════════════════════════════════╝
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjJQD5Uz9JxCEnFvhb4ik0csKfwbrnPZNekfHGcRvN_c90H_VSkuEtuR1-OaOJHvph/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0eapE-hVt8wtVi1C_fI1rbxniWOxGfRjoMpk8xc7My-SIyRUOmkcapY4v5zTkZzi_/exec';
 
 async function submitRSVP() {
   const name   = document.getElementById('rsvpName').value.trim();
   const phone  = document.getElementById('rsvpPhone').value.trim();
   const status = document.getElementById('rsvpStatus').value;
+  const guests = document.getElementById('guestCount').value;
 
   // Проверка — все поля заполнены?
   if (!name || !phone || !status) {
@@ -969,15 +970,17 @@ async function submitRSVP() {
   btn.textContent = 'Отправляем…';
   btn.disabled = true;
 
-  try {
-    // Отправляем данные на Google Apps Script
-    // mode: 'no-cors' — обязательно для Apps Script
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, status })
-    });
+  await fetch(SCRIPT_URL, {
+  method: 'POST',
+  mode: 'no-cors',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name,
+    phone,
+    status,
+    guests
+  })
+});
 
     // Скрыть форму, показать спасибо
     document.getElementById('rsvpForm').style.display = 'none';
