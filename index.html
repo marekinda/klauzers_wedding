@@ -971,17 +971,14 @@ async function submitRSVP() {
   btn.disabled = true;
 
   try {
+    // Отправляем данные на Google Apps Script
+    // mode: 'no-cors' — обязательно для Apps Script
     await fetch(SCRIPT_URL, {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name,
-    phone,
-    status,
-    guests
-  })
-});
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, status, guests })
+    });
 
     // Скрыть форму, показать спасибо
     document.getElementById('rsvpForm').style.display = 'none';
